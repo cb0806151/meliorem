@@ -21,10 +21,10 @@ loading...
 - create github for project
 - Set up ESlint: https://brygrill.medium.com/create-react-app-with-typescript-eslint-prettier-and-github-actions-f3ce6a571c97
 - Upload sketches
+- Create initial page
 
 Backlog
 - Carry over notes
-- Create initial page
 
 </p>
 </details>

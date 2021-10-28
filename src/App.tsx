@@ -1,26 +1,38 @@
-import React from "react";
-import logo from "./logo.svg";
-import "./App.css";
+import { useState } from "react"
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+type Record = {
+  thing?: string
 }
 
-export default App;
+const App = () => {
+  const [record, setRecord] = useState<undefined | Record>(undefined)
+
+  const getFile = (e: any) => {
+    const fileReader = new FileReader()
+    fileReader.readAsText(e.target.files[0], "UTF-8")
+    fileReader.onload = (e) => {
+      const recordAsString = (e.target?.result || '{}') as string
+      const recordAsJSON = JSON.parse(recordAsString)
+      setRecord(recordAsJSON)
+    }
+  }
+
+  const createDefaultRecord = () => {
+    setRecord({})
+  }
+
+  return (
+    <>
+      {record === undefined &&
+        <div>
+          <label htmlFor="uploadRecord">Upload Record</label>
+          <input type="file" name="uploadRecord" accept=".json" onChange={getFile} />
+          <button onClick={createDefaultRecord}>Start New Record</button>
+        </div>
+      }
+    </>
+  )
+}
+
+export default App
+
