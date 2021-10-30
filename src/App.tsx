@@ -24,8 +24,48 @@ type Record = {
 
 }
 
+function getFormattedDate(date: Date) {
+  let year = date.getFullYear();
+  let month = (1 + date.getMonth()).toString().padStart(2, '0');
+  let day = date.getDate().toString().padStart(2, '0');
+
+  return month + '/' + day + '/' + year;
+}
+
+const getCurrentWeek = () => {
+  let prevMonday = new Date();
+  prevMonday.setDate(prevMonday.getDate() - (prevMonday.getDay() + 6) % 7);
+  prevMonday.setHours(0)
+  prevMonday.setMinutes(0)
+  prevMonday.setSeconds(0)
+  return prevMonday
+}
+
+const defaultRecord = () => {
+  const currentWeek = getFormattedDate(getCurrentWeek())
+  return {
+    lastWeek: currentWeek,
+    settings: {
+      startDate: new Date().toUTCString()
+    },
+    completed: {
+      dailies: {
+      },
+    },
+    inProgress: {
+      dailies: {
+        [currentWeek]: {
+        },
+      },
+    }
+  }
+}
+
 const App = () => {
-  const [record, setRecord] = useState<undefined | Record>(undefined)
+  const [recordChosen, setRecordChosen] = useState(false)
+  const [record, setRecord] = useState<Record>(defaultRecord())
+  const [createDailyModalVisible, setCreateDailyModalVisible] = useState(false)
+  const [newTask, setNewTask] = useState('')
 
   const getFile = (e: any) => {
     const fileReader = new FileReader()
@@ -35,45 +75,6 @@ const App = () => {
       const recordAsJSON = JSON.parse(recordAsString)
       setRecord(recordAsJSON)
     }
-  }
-
-  const createDefaultRecord = () => {
-    const currentWeek = getFormattedDate(getCurrentWeek())
-    const newRecord = {
-      lastWeek: currentWeek,
-      settings: {
-        startDate: new Date().toUTCString()
-      },
-      completed: {
-        dailies: {
-        },
-      },
-      inProgress: {
-        dailies: {
-          [currentWeek]: {
-          },
-        },
-      }
-    }
-
-    setRecord(newRecord)
-  }
-
-  function getFormattedDate(date: Date) {
-    let year = date.getFullYear();
-    let month = (1 + date.getMonth()).toString().padStart(2, '0');
-    let day = date.getDate().toString().padStart(2, '0');
-
-    return month + '/' + day + '/' + year;
-  }
-
-  const getCurrentWeek = () => {
-    let prevMonday = new Date();
-    prevMonday.setDate(prevMonday.getDate() - (prevMonday.getDay() + 6) % 7);
-    prevMonday.setHours(0)
-    prevMonday.setMinutes(0)
-    prevMonday.setSeconds(0)
-    return prevMonday
   }
 
   const maybeAddInProgressWeeks = (record: Record) => {
@@ -87,16 +88,24 @@ const App = () => {
     return record
   }
 
+  const createNewDaily = () => {
+    if (newTask.length === 0) return
+    const recordCopy = record
+    recordCopy.inProgress.dailies[getFormattedDate(getCurrentWeek())][newTask] = [0, 0, 0, 0, 0, 0, 0]
+    setRecord(recordCopy)
+    setCreateDailyModalVisible(false)
+  }
+
   return (
     <>
-      {record === undefined &&
+      {!recordChosen &&
         <div>
           <label htmlFor="uploadRecord">Upload Record</label>
           <input type="file" name="uploadRecord" accept=".json" onChange={getFile} />
-          <button onClick={createDefaultRecord}>Start New Record</button>
+          <button onClick={() => setRecordChosen(true)}>Start New Record</button>
         </div>
       }
-      {record !== undefined &&
+      {recordChosen &&
         <div>
           <div>
             <div>Dailies</div>
@@ -116,7 +125,7 @@ const App = () => {
                       <div>{key}</div>
                       {value.map((success) => (
                         <>
-                          <input type="checkbox" checked={success === 1} />
+                          <input type="checkbox" checked={success === 1} readOnly />
                         </>
                       ))}
                     </>
@@ -124,9 +133,16 @@ const App = () => {
                 </>
               ))}
             </div>
+            <button onClick={() => setCreateDailyModalVisible(true)}>add a new daily</button>
           </div>
         </div>
       }
+      {createDailyModalVisible && (
+        <div>
+          <input autoFocus type='text' onChange={(event) => setNewTask(event?.target.value)} />
+          <button onClick={createNewDaily}>Create New Daily</button>
+        </div>
+      )}
     </>
   )
 }
