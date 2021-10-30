@@ -23,14 +23,21 @@ loading...
 - Upload sketches
 - Create initial page
 
+10/30/21
+- start work on "start new record" flow
+
 Backlog
 - Carry over notes
+- build button for creating new dailies/weeklies
 
 </p>
 </details>
 <details><summary>Notes and Such</summary>
 <p>  
 
-loading...
+How can the app tell that the week was marked as completed or not?
+How does the app decide which week to look at when it loads?
+How does the app filter the completed weeks from the incomplete weeks?
+
 </p>
 </details>
