@@ -26,12 +26,13 @@ loading...
 10/30/21
 - start work on "start new record" flow
 - build button for creating new dailies/weeklies
+- allow checkboxes to be checked
 
 Backlog
 - Carry over notes
-- allow checkboxes to be checked
 - allow switching between dailies and weeklies
 - build "mark complete" button for a week
+- research the "nested map isn't re-rendering" issue that is forcing me to use forceUpdate
 
 </p>
 </details>

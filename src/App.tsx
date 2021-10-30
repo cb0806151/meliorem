@@ -1,11 +1,11 @@
-import { useState } from "react"
+import { useReducer, useState } from "react"
 
 type Settings = {
   startDate: string
 }
 
 type Tasks = {
-  [key: string]: number[]
+  [key: string]: boolean[]
 }
 
 type Dailies = {
@@ -66,6 +66,7 @@ const App = () => {
   const [record, setRecord] = useState<Record>(defaultRecord())
   const [createDailyModalVisible, setCreateDailyModalVisible] = useState(false)
   const [newTask, setNewTask] = useState('')
+  const [ignored, forceUpdate] = useReducer(x => x + 1, 0);
 
   const getFile = (e: any) => {
     const fileReader = new FileReader()
@@ -91,10 +92,18 @@ const App = () => {
   const createNewDaily = () => {
     if (newTask.length === 0) return
     const recordCopy = record
-    recordCopy.inProgress.dailies[getFormattedDate(getCurrentWeek())][newTask] = [0, 0, 0, 0, 0, 0, 0]
+    recordCopy.inProgress.dailies[getFormattedDate(getCurrentWeek())][newTask] = [false, false, false, false, false, false, false]
     setRecord(recordCopy)
     setCreateDailyModalVisible(false)
   }
+
+  const toggleDailyTask = (index: number, taskName: string, taskWeek: string) => {
+    const recordCopy = record
+    recordCopy.inProgress.dailies[taskWeek][taskName][index] = !recordCopy.inProgress.dailies[taskWeek][taskName][index]
+    setRecord(recordCopy)
+    forceUpdate()
+  }
+
 
   return (
     <>
@@ -117,20 +126,16 @@ const App = () => {
             <div></div>
             <hr></hr>
             <div>
-              {Object.entries(record.inProgress.dailies).map(([key, value]) => (
-                <>
-                  <div>{key}</div>
-                  {Object.entries(value).map(([key, value]) => (
-                    <>
-                      <div>{key}</div>
-                      {value.map((success) => (
-                        <>
-                          <input type="checkbox" checked={success === 1} readOnly />
-                        </>
+              {Object.entries(record.inProgress.dailies).map(([weekKey, value]) => (
+                <div key={weekKey}>{weekKey}
+                  {Object.entries(value).map(([nameKey, value]) => (
+                    <div key={nameKey}>{nameKey}
+                      {value.map((success, index) => (
+                        <input key={`${index}${success}`} type="checkbox" id={`${index}${success}`} checked={success} readOnly onClick={() => toggleDailyTask(index, nameKey, weekKey)} />
                       ))}
-                    </>
+                    </div>
                   ))}
-                </>
+                </div>
               ))}
             </div>
             <button onClick={() => setCreateDailyModalVisible(true)}>add a new daily</button>
@@ -148,4 +153,3 @@ const App = () => {
 }
 
 export default App
-
